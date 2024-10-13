@@ -9,15 +9,73 @@
  for you to use if you need it!
  */
 
+function createEmployeeRecord([firstName, familyName, title, payPerHour]) {
+    return {
+        firstName,
+        familyName,
+        title,
+        payPerHour,
+        timeInEvents: [],
+        timeOutEvents: [],
+
+        createTimeInEvent,
+        createTimeOutEvent,
+        hoursWorkedOnDate,
+        wagesEarnedOnDate,
+        allWagesFor
+    };
+}
+
+function createEmployeeRecords(employeeData) {
+    return employeeData.map(createEmployeeRecord);
+}
+
+function createTimeInEvent(dateStamp) {
+    let [date, hour] = dateStamp.split(" ");
+    this.timeInEvents.push({
+        type: "TimeIn",
+        hour: parseInt(hour, 10),
+        date: date
+    });
+    return this;
+}
+
+function createTimeOutEvent(dateStamp) {
+    let [date, hour] = dateStamp.split(" ");
+    this.timeOutEvents.push({
+        type: "TimeOut",
+        hour: parseInt(hour, 10),
+        date: date
+    });
+    return this;
+}
+
+function hoursWorkedOnDate(soughtDate) {
+    let timeIn = this.timeInEvents.find(e => e.date === soughtDate);
+    let timeOut = this.timeOutEvents.find(e => e.date === soughtDate);
+    return (timeOut.hour - timeIn.hour) / 100;
+}
+
+function wagesEarnedOnDate(date) {
+    return this.hoursWorkedOnDate(date) * this.payPerHour;
+}
+
 const allWagesFor = function () {
     const eligibleDates = this.timeInEvents.map(function (e) {
-        return e.date
+        return e.date;
     })
 
     const payable = eligibleDates.reduce(function (memo, d) {
-        return memo + wagesEarnedOnDate.call(this, d)
-    }.bind(this), 0) // <== Hm, why did we need to add bind() there? We'll discuss soon!
+        return memo + wagesEarnedOnDate.call(this, d);
+    }.bind(this), 0); // <= Hm, why did we need to add bind () there? We'll discuss soon!
 
     return payable
 }
 
+function findEmployeeByFirstName(srcArray, firstName) {
+    return srcArray.find(employee => employee.firstName === firstName);
+}
+
+function calculatePayroll(employeeRecords) {
+    return employeeRecords.reduce((total, employee) => total + employee.allWagesFor(), 0);
+}
